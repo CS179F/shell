@@ -1,0 +1,5 @@
+
+*.out
+*.viminfo
+*.config/geany
+
