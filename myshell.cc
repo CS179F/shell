@@ -8,9 +8,15 @@
 #include <cassert>
 #include <thread>
 #include <unistd.h>
+<<<<<<< HEAD
 #include <cerrno>
 #include <cstring>
 #include <stdlib.h>
+=======
+#include <stdlib.h>
+#include <cstring>
+
+>>>>>>> origin/master
 using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
