@@ -7,6 +7,9 @@
 #include <errno.h>                       // man errno for information
 #include <cassert>
 #include <thread>
+#include <unistd.h>
+#include <stdlib.h>
+#include <cstring>
 
 using namespace std;
 
