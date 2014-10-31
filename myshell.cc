@@ -8,6 +8,9 @@
 #include <cassert>
 #include <thread>
 #include <unistd.h>
+#include <cerrno>
+#include <cstring>
+#include <stdlib.h>
 #include <stdlib.h>
 #include <cstring>
 
@@ -122,7 +125,7 @@ int main( int argc, char* argv[] ) {
       thread t(do_work);
       //int status = doit( v );           // FIX make status available.
       if ( errno ) cerr << "myshell: " << strerror(errno) << endl;
-    }
+    } 
 
   }
   cout << "exit" << endl;
