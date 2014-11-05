@@ -1,5 +1,5 @@
 
-EXECUTABLES = shell sequ
+EXECUTABLES = shell
 OBJECTS = 
 CXXFLAGS= -ggdb
 CXX = g++
