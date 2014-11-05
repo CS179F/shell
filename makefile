@@ -8,7 +8,7 @@ STDFLAGS= -std=c++0x
 all: $(EXECUTABLES)
 
 shell: myshell.cc
-	$(CXX) $(CXXFLAGS) $(STDFLAGS) myshell.cc -o shell
+	$(CXX) $(CXXFLAGS) $(STDFLAGS) -pthread myshell.cc -o shell
 
 clean:
 	rm -f $(OBJECTS) $(EXECUTABLES) *.o *~
