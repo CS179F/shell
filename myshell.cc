@@ -17,7 +17,7 @@
 using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
-
+int doit( vector<string> tok );
 
 
 
@@ -51,7 +51,7 @@ void thread_run ( vector<string> tok){
         close( pipe_in );   
         while ( tok.front() != "|" ) tok.erase( tok.begin() );
         tok.erase(tok.begin());                    // get rid of "|".
-        //exit( doit( tok ) );        // recurse on what's left of tok.
+        exit( doit( tok ) );        // recurse on what's left of tok.
       } else {                 // you're the child and producer here.
         dup2( pipe_in, STDOUT_FILENO ); // connect pipe_in to stdout.
         close( pipe_out );        // close original pipe connections.
