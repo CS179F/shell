@@ -13,23 +13,56 @@
 #include <stdlib.h>
 #include <stdlib.h>
 #include <cstring>
+#include <stdio.h>
+//#include <readline/readline.h>
+//#include <readline/history.h>
 
 using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
 
-int doit( vector<string> tok );
+/*j
+void testCompleteMe(){
+	char *complete = readline("");
+	cout << string(complete) << endl; 
+	printf("%s\n", complete);
+	delete complete;
+}
+*/
 
+struct Device{
+	int deviceNumber; 
+	string deviceName; 
+}; 
+
+
+struct openFileTable{
+	Device ptr;
+	bool write;
+	bool read;
+}; 
+
+
+struct processTable{ 
+	pid_t pid;
+	pid_t *ppid;
+	openFileTable opfile[32]; 
+};
+
+
+int doit( vector<string> tok );
 
 void thread_run ( vector<string> tok){
   // Option processing: (1) redirect I/O as requested and (2) build  
   // a C-style list of arguments, i.e., an array of pointers to
   // C-strings, terminated by an occurrence of the null poiinter.
+  //	
   //
-  string progname = tok[0]; 
-  char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
-  int argct = 0;
-  for ( int i = 0; i != tok.size(); ++i ) {
+	string progname = tok[0]; 
+	//testCompleteMe(); 
+	char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
+	int argct = 0;
+	for ( int i = 0; i != tok.size(); ++i ) {
     if      ( tok[i] == "&" || tok[i] == ";" ) break;   // arglist done.
     else if ( tok[i] == "<"  ) freopen( tok[++i].c_str(), "r", stdin  );
     else if ( tok[i] == ">"  ) freopen( tok[++i].c_str(), "w", stdout );
@@ -99,22 +132,27 @@ int doit( vector<string> tok ) {
   // fork.  And, wait if child to run in foreground.
   if ( pid_t kidpid = fork() ) 
   {       
-    // You're the parent.
     if ( errno || tok.back() == "&") return 0;
     int temp = 0;                
     waitpid( kidpid, &temp, 0 ); 
     return ( WIFEXITED(temp) ) ? WEXITSTATUS(temp) : -1;
   } 
   // You're the child.
+  cout << "parent thread " << this_thread::get_id() << endl; 
   std::thread thread1 ( thread_run,tok); 
+  cout << "child thread " << thread1.get_id() << endl; 
+	cout << "child pid "  << getpid() << endl;  
+	cout << "parent pid " << getppid() << endl; 
   thread1.join(); 
 
 }
 
 
 int main( int argc, char* argv[] ) {
+///*
   while ( ! cin.eof() ) {
     cout << "? " ;                                         // prompt.
+	//testCompleteMe(); 
     string temp = "";
     getline( cin, temp );
     cout.flush();
@@ -136,6 +174,8 @@ int main( int argc, char* argv[] ) {
   }
   cout << "exit" << endl;
   return 0;                                                  // exit.
+  //*/
+//	testCompleteMe(); 
 }
 
 
