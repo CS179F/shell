@@ -52,6 +52,32 @@ struct processTable{
 
 int doit( vector<string> tok );
 
+#include <mutex>
+using namespace std;
+
+#define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
+struct Devices{
+  int deviceNumber;
+  string driverName;
+};
+struct openfiletable{
+  Devices *ptr; //pointer to device
+  bool write;
+  bool read;
+};
+ struct processtable{
+  processtable(){
+      cout << "Hello";
+  }
+  ~processtable(){git 
+    cout << "GOODBYE";
+  }
+  pid_t pid;
+  pid_t *ppid;// parents process ID
+  openfiletable opfile[32];
+};
+int doit( vector<string> tok );
+
 void thread_run ( vector<string> tok){
   // Option processing: (1) redirect I/O as requested and (2) build  
   // a C-style list of arguments, i.e., an array of pointers to
@@ -63,6 +89,12 @@ void thread_run ( vector<string> tok){
 	char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
 	int argct = 0;
 	for ( int i = 0; i != tok.size(); ++i ) {
+  
+  thread_local static int num = 3;
+  string progname = tok[0]; 
+  char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
+  int argct = 0;
+  for ( int i = 0; i != tok.size(); ++i ) {
     if      ( tok[i] == "&" || tok[i] == ";" ) break;   // arglist done.
     else if ( tok[i] == "<"  ) freopen( tok[++i].c_str(), "r", stdin  );
     else if ( tok[i] == ">"  ) freopen( tok[++i].c_str(), "w", stdout );
@@ -143,7 +175,13 @@ int doit( vector<string> tok ) {
   cout << "child thread " << thread1.get_id() << endl; 
 	cout << "child pid "  << getpid() << endl;  
 	cout << "parent pid " << getppid() << endl; 
+  thread thread1 ( thread_run,tok); 
+  cout << "PID: "<< getpid() << endl;
+  cout << "PPID: "<< getppid() << endl;
+  
+
   thread1.join(); 
+ 
 
 }
 
