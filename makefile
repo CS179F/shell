@@ -7,8 +7,11 @@ STDFLAGS= -std=c++0x
 
 all: $(EXECUTABLES)
 
+source: 
+	./sourcec11
+
 shell: myshell.cc
-	$(CXX) $(CXXFLAGS) $(STDFLAGS) -pthread myshell.cc -o shell
+	$(CXX) $(CXXFLAGS) $(STDFLAGS) -lreadline -pthread myshell.cc -o shell
 
 clean:
 	rm -f $(OBJECTS) $(EXECUTABLES) *.o *~
