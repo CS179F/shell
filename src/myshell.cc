@@ -14,34 +14,20 @@
 #include <stdlib.h>
 #include <cstring>
 #include <stdio.h>
-//#include <readline/readline.h>
-//#include <readline/history.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #include <mutex>
 using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
 
-/*j
 void testCompleteMe(){
 	char *complete = readline("");
-	cout << string(complete) << endl; 
-	printf("%s\n", complete);
+	cout << string(complete); 
+	//printf("%s\n", complete);
 	delete complete;
 }
-*/
-
-struct Device{
-	int deviceNumber; 
-	string deviceName; 
-}; 
-
-
-struct openFileTable{
-	Device ptr;
-	bool write;
-	bool read;
-}; 
 
 int doit( vector<string> tok );
 
@@ -50,25 +36,12 @@ struct Devices{
   string driverName;
 };
 
-struct openfiletable{
+struct openFileTable{
   Devices *ptr; //pointer to device
   bool write;
   bool read;
 };
 
- struct processtable{
-  processtable(){
-      cout << "Hello";
-  }
-  ~processtable(){git 
-    cout << "GOODBYE";
-  }
-  pid_t pid;
-  pid_t *ppid;// parents process ID
-  openfiletable opfile[32];
-};
-
-int doit( vector<string> tok );
 
 struct processTable{ 
 	pid_t pid;
@@ -91,7 +64,6 @@ void thread_run ( vector<string> tok){
 	int argct = 0;
 	for ( int i = 0; i != tok.size(); ++i ) {
   
-  thread_local static int num = 3;
   string progname = tok[0]; 
   char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
   int argct = 0;
@@ -145,6 +117,7 @@ void thread_run ( vector<string> tok){
   //cerr << "myshell: " << strerror(errno) << endl;     // report error.
   exit(0);                  // child must not return, so must die now.
 }
+}
 
 int doit( vector<string> tok ) {  
   // Executes a parsed command line returning command's exit status.
@@ -171,15 +144,7 @@ int doit( vector<string> tok ) {
     return ( WIFEXITED(temp) ) ? WEXITSTATUS(temp) : -1;
   } 
   // You're the child.
-  cout << "parent thread " << this_thread::get_id() << endl; 
   std::thread thread1 ( thread_run,tok); 
-  cout << "child thread " << thread1.get_id() << endl; 
-	cout << "child pid "  << getpid() << endl;  
-	cout << "parent pid " << getppid() << endl; 
-  thread thread1 ( thread_run,tok); 
-  cout << "PID: "<< getpid() << endl;
-  cout << "PPID: "<< getppid() << endl;
-  
   thread1.join(); 
  
 
@@ -191,6 +156,7 @@ int main( int argc, char* argv[] ) {
   while ( ! cin.eof() ) {
     cout << "? " ;                                         // prompt.
 	//testCompleteMe(); 
+	// testCompleteMe(); 
     string temp = "";
     getline( cin, temp );
     cout.flush();
