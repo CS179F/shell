@@ -1,5 +1,5 @@
 #!/bin/bash
-cd ~/cs179/shell/
+cd ~/cs179F
 ./bin/install
 echo "installed"
 cd src/

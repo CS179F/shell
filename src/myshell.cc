@@ -31,19 +31,6 @@ void testCompleteMe(){
 }
 */
 
-struct Device{
-	int deviceNumber; 
-	string deviceName; 
-}; 
-
-
-struct openFileTable{
-	Device ptr;
-	bool write;
-	bool read;
-}; 
-
-int doit( vector<string> tok );
 
 struct Devices{
   int deviceNumber;
@@ -68,15 +55,10 @@ struct openfiletable{
   openfiletable opfile[32];
 };
 
-int doit( vector<string> tok );
-
-struct processTable{ 
-	pid_t pid;
-	pid_t *ppid;
-	openFileTable opfile[32]; 
-};
 
 
+
+thread_local int tmp;
 int doit( vector<string> tok );
 
 void thread_run ( vector<string> tok){
@@ -173,9 +155,9 @@ int doit( vector<string> tok ) {
   // You're the child.
   cout << "parent thread " << this_thread::get_id() << endl; 
   std::thread thread1 ( thread_run,tok); 
-  cout << "child thread " << thread1.get_id() << endl; 
-	cout << "child pid "  << getpid() << endl;  
-	cout << "parent pid " << getppid() << endl; 
+  // cout << "child thread " << thread1.get_id() << endl; 
+	//cout << "child pid "  << getpid() << endl;  
+	//cout << "parent pid " << getppid() << endl; 
   cout << "PID: "<< getpid() << endl;
   cout << "PPID: "<< getppid() << endl;
   
