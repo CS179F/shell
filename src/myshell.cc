@@ -13,14 +13,15 @@
 #include <stdlib.h>
 #include <stdlib.h>
 #include <cstring>
+
 #include <stdio.h>
 //#include <readline/readline.h>
 //#include <readline/history.h>
-
 #include <mutex>
 using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
+
 
 /*j
 void testCompleteMe(){
@@ -31,11 +32,11 @@ void testCompleteMe(){
 }
 */
 
-
 struct Devices{
   int deviceNumber;
   string driverName;
 };
+
 
 struct openfiletable{
   Devices *ptr; //pointer to device
@@ -47,13 +48,19 @@ struct openfiletable{
   processtable(){
       cout << "Hello";
   }
+
   ~processtable(){ 
+
+  ~processtable(){
+
     cout << "GOODBYE";
   }
   pid_t pid;
   pid_t *ppid;// parents process ID
   openfiletable opfile[32];
 };
+
+
 
 
 
@@ -72,7 +79,10 @@ void thread_run ( vector<string> tok){
 	char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
 	int argct = 0;
 	for ( int i = 0; i != tok.size(); ++i ) {
+
   
+ // thread_local static int num = 3;
+
   string progname = tok[0]; 
   char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
   int argct = 0;
@@ -108,6 +118,7 @@ void thread_run ( vector<string> tok){
       // Append tok[i].c_str() to arglist
       arglist[argct] = new char[1+tok[i].size()];  
       strcpy( arglist[argct], tok[i].c_str() );
+      // arglist[argct] = const_cast<char*>( tok[i].c_str() );
       // arglist[argct] = const_cast<char*>( tok[i].c_str() );
       // Per C++2003, Section 21.3.7: "Nor shall the program treat 
       // the returned value [ of .c_str() ] as a valid pointer value 
@@ -153,6 +164,7 @@ int doit( vector<string> tok ) {
     return ( WIFEXITED(temp) ) ? WEXITSTATUS(temp) : -1;
   } 
   // You're the child.
+
   cout << "parent thread " << this_thread::get_id() << endl; 
   std::thread thread1 ( thread_run,tok); 
   // cout << "child thread " << thread1.get_id() << endl; 
@@ -160,7 +172,12 @@ int doit( vector<string> tok ) {
 	//cout << "parent pid " << getppid() << endl; 
   cout << "PID: "<< getpid() << endl;
   cout << "PPID: "<< getppid() << endl;
+
+  thread thread1 ( thread_run,tok); 
+  cout << "PID: "<< getpid() << endl;
+  cout << "PPID: "<< getppid() << endl;
   
+
   thread1.join(); 
  
 
