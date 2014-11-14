@@ -17,8 +17,13 @@
 using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
+<<<<<<< HEAD
 int doit( vector<string> tok );
 
+=======
+
+int doit( vector<string> tok );
+>>>>>>> 3963ff36241731886f1b4cd5ada3890b1580d975
 
 
 void thread_run ( vector<string> tok){
@@ -26,7 +31,6 @@ void thread_run ( vector<string> tok){
   // a C-style list of arguments, i.e., an array of pointers to
   // C-strings, terminated by an occurrence of the null poiinter.
   //
-  cout << "THREAD RUNNNING" << endl; 
   string progname = tok[0]; 
   char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
   int argct = 0;
@@ -41,9 +45,9 @@ void thread_run ( vector<string> tok){
       int& pipe_out = mypipe[0];
       int& pipe_in  = mypipe[1];
       // Find two available ports and create a pipe between them, and 
-      // store output port# into pipe_out and input port# to pipe_in.
+      // store output portuntitled folder# into pipe_out and input port# to pipe_in.
       if ( pipe( mypipe ) ) {     // All that is done here by pipe().
-        cerr << "myshell: " << strerror(errno) << endl; // report err
+        //cerr << "myshell: " << strerror(errno) << endl; // report err
         return;
       } else if ( fork() ) {  // you're the parent and consumer here.
     dup2( pipe_out, STDIN_FILENO ); // connect pipe_out to stdin.
@@ -77,8 +81,8 @@ void thread_run ( vector<string> tok){
   if ( progname[0] == '~' ) progname = getenv("HOME")+progname.substr(1);
   execvp( progname.c_str(), arglist );         // execute the command.
   // If we get here, an error occurred in the child's attempt to exec.
-  cerr << "myshell: " << strerror(errno) << endl;     // report error.
-  //exit(0);                  // child must not return, so must die now.
+  //cerr << "myshell: " << strerror(errno) << endl;     // report error.
+  exit(0);                  // child must not return, so must die now.
 }
 
 int doit( vector<string> tok ) {  
@@ -97,7 +101,6 @@ int doit( vector<string> tok ) {
     return -1;
   } 
 
-  cout << "Starting thread1" << endl; 
   // fork.  And, wait if child to run in foreground.
   if ( pid_t kidpid = fork() ) 
   {       
@@ -108,10 +111,9 @@ int doit( vector<string> tok ) {
     return ( WIFEXITED(temp) ) ? WEXITSTATUS(temp) : -1;
   } 
   // You're the child.
-  cout << "Starting thread2" << endl; 
   std::thread thread1 ( thread_run,tok); 
-  cout << "Starting thread3" << endl; 
   thread1.join(); 
+
 }
 
 
@@ -133,7 +135,7 @@ int main( int argc, char* argv[] ) {
       }
      // thread t(do_work);
       int status = doit( v );           // FIX make status available.
-      if ( errno ) cerr << "myshell: " << strerror(errno) << endl;
+      //if ( errno ) cerr << "myshell: " << strerror(errno) << endl;
     } 
 
   }
