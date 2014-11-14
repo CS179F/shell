@@ -17,13 +17,13 @@
 using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
-<<<<<<< HEAD
-int doit( vector<string> tok );
-
-=======
 
 int doit( vector<string> tok );
->>>>>>> 3963ff36241731886f1b4cd5ada3890b1580d975
+
+
+
+int doit( vector<string> tok );
+
 
 
 void thread_run ( vector<string> tok){
