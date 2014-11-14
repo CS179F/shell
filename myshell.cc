@@ -18,9 +18,6 @@ using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
 
-int doit( vector<string> tok );
-
-
 
 int doit( vector<string> tok );
 
