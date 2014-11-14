@@ -60,7 +60,7 @@ struct openfiletable{
   processtable(){
       cout << "Hello";
   }
-  ~processtable(){git 
+  ~processtable(){ 
     cout << "GOODBYE";
   }
   pid_t pid;
@@ -91,7 +91,6 @@ void thread_run ( vector<string> tok){
 	int argct = 0;
 	for ( int i = 0; i != tok.size(); ++i ) {
   
-  thread_local static int num = 3;
   string progname = tok[0]; 
   char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
   int argct = 0;
@@ -145,6 +144,7 @@ void thread_run ( vector<string> tok){
   //cerr << "myshell: " << strerror(errno) << endl;     // report error.
   exit(0);                  // child must not return, so must die now.
 }
+}
 
 int doit( vector<string> tok ) {  
   // Executes a parsed command line returning command's exit status.
@@ -176,7 +176,6 @@ int doit( vector<string> tok ) {
   cout << "child thread " << thread1.get_id() << endl; 
 	cout << "child pid "  << getpid() << endl;  
 	cout << "parent pid " << getppid() << endl; 
-  thread thread1 ( thread_run,tok); 
   cout << "PID: "<< getpid() << endl;
   cout << "PPID: "<< getppid() << endl;
   
