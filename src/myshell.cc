@@ -21,37 +21,43 @@
 using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
-
 void testCompleteMe(){
 	char *complete = readline("");
 	cout << string(complete); 
 	//printf("%s\n", complete);
 	delete complete;
 }
-
 int doit( vector<string> tok );
-
 struct Devices{
   int deviceNumber;
   string driverName;
 };
-
 struct openFileTable{
   Devices *ptr; //pointer to device
   bool write;
   bool read;
 };
-
-
 struct processTable{ 
 	pid_t pid;
 	pid_t *ppid;
+  /*
+  processTable(){
+    pid = 0;
+    *ppid = 0;
+  }
+  processTable(pid_t p, pid_t *pp){
+    pid = p;
+    ppid = pp;
+  }
+  ~processTable(){}*/
+  void setid(pid_t p, pid_t pp){pid = p; ppid = &pp;}
+  void print(){
+    cout << "[PID: " << pid << "][PPID: " << *ppid << "]" << endl;
+  }
 	openFileTable opfile[32]; 
 };
 
-
-int doit( vector<string> tok );
-
+thread_local processTable tmp;
 void thread_run ( vector<string> tok){
   // Option processing: (1) redirect I/O as requested and (2) build  
   // a C-style list of arguments, i.e., an array of pointers to
@@ -59,6 +65,10 @@ void thread_run ( vector<string> tok){
   //	
   //
 	string progname = tok[0]; 
+ 
+  //cout << getpid() << " " << getppid() << endl;
+  tmp.setid(getpid(), getppid());
+  tmp.print();
 	//testCompleteMe(); 
 	char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
 	int argct = 0;
@@ -137,7 +147,8 @@ int doit( vector<string> tok ) {
 
   // fork.  And, wait if child to run in foreground.
   if ( pid_t kidpid = fork() ) 
-  {       
+  {      
+
     if ( errno || tok.back() == "&") return 0;
     int temp = 0;                
     waitpid( kidpid, &temp, 0 ); 
@@ -145,6 +156,7 @@ int doit( vector<string> tok ) {
   } 
   // You're the child.
   std::thread thread1 ( thread_run,tok); 
+  //cout << "[PID: " << getpid() << "][PPID: " << getppid() << "]" << endl;
   thread1.join(); 
  
 
