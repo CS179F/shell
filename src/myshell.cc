@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <stdlib.h>
 #include <cstring>
-
 #include <stdio.h>
 //#include <readline/readline.h>
 //#include <readline/history.h>
@@ -32,6 +31,10 @@ void testCompleteMe(){
 }
 */
 
+
+
+#define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
+
 struct Devices{
   int deviceNumber;
   string driverName;
@@ -49,7 +52,6 @@ struct openfiletable{
       cout << "Hello";
   }
 
-  ~processtable(){ 
 
   ~processtable(){
 
@@ -80,7 +82,6 @@ void thread_run ( vector<string> tok){
 	int argct = 0;
 	for ( int i = 0; i != tok.size(); ++i ) {
 
-  
  // thread_local static int num = 3;
 
   string progname = tok[0]; 
@@ -172,15 +173,12 @@ int doit( vector<string> tok ) {
 	//cout << "parent pid " << getppid() << endl; 
   cout << "PID: "<< getpid() << endl;
   cout << "PPID: "<< getppid() << endl;
-
+  cout << "parent thread " << this_thread::get_id() << endl; 
+  std::thread thread1 ( thread_run,tok); 
   thread thread1 ( thread_run,tok); 
   cout << "PID: "<< getpid() << endl;
   cout << "PPID: "<< getppid() << endl;
-  
-
   thread1.join(); 
- 
-
 }
 
 
