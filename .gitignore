@@ -1,4 +1,5 @@
-
+*.txt
+shell
 *.out
 *.viminfo
 *.config/geany
