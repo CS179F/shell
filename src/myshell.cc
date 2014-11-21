@@ -6,7 +6,8 @@
 #include <sys/wait.h>
 #include <errno.h>                       // man errno for information
 #include <cassert>
-#include <thread>
+//#include <thread>
+#include "thread.h"
 #include <unistd.h>
 #include <cerrno>
 #include <cstring>
@@ -19,7 +20,7 @@
 
 #include <mutex>
 using namespace std;
-
+vector<string>HISTORY[5];
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
 void testCompleteMe(){
 	char *complete = readline("");
@@ -162,7 +163,6 @@ int doit( vector<string> tok ) {
 
 }
 
-
 int main( int argc, char* argv[] ) {
 ///*
   while ( ! cin.eof() ) {
@@ -184,6 +184,8 @@ int main( int argc, char* argv[] ) {
       }
      // thread t(do_work);
       int status = doit( v );           // FIX make status available.
+    
+      //if(v.size() != 0) add_history(v);
       //if ( errno ) cerr << "myshell: " << strerror(errno) << endl;
     } 
 
@@ -191,7 +193,7 @@ int main( int argc, char* argv[] ) {
   cout << "exit" << endl;
   return 0;                                                  // exit.
   //*/
-//	testCompleteMe(); 
+//	testCompleteMe(); readline("\n >> ")
 }
 
 
