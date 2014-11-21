@@ -231,6 +231,7 @@ public:
   static Thread* me();
 
   virtual ~Thread() { 
+    exit(0);
     //pthread_cancel(pt);
   }
 
