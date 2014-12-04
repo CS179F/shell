@@ -252,6 +252,13 @@ public:
     //assert( pt.joinable() );
     pt.thread::join();
   }
+   
+   void detach(){
+	pt.thread::detach(); 
+   }
+
+
+
   thread::id get_thread_id()
   {
 	  return thread_id;

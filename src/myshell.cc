@@ -6,7 +6,6 @@
 #include <sys/wait.h>
 #include <errno.h>                       // man errno for information
 #include <cassert>
-//#include <thread>
 #include <unistd.h>
 #include <cerrno>
 #include <cstring>
@@ -205,8 +204,12 @@ int doit( vector<string> tok ) {
   }
   // You're the child.
   shellThread thread1 ("Temp name", INT_MAX,tok);
-  thread1.join();
- 
+  if (tok.back() == "&"){ ///continue with thread1 running in the background
+	thread1.detach(); 
+  }   
+  else{   //else wait for thread to complete
+  	thread1.join();
+  }
 
 }
 
@@ -230,7 +233,7 @@ int main( int argc, char* argv[] ) {
       string s;
       while ( ss >> s ) {
         v.push_back(s);
-        if ( s == "&" || s == ";" ) break;   
+        if (s == ";" ) break;   
       }
      // thread t(do_work);
       int status = doit( v );           // FIX make status available.
