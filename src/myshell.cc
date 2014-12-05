@@ -65,6 +65,7 @@ class shellThread : public Thread {
     vector<string> tok;
     int priority() {return Thread::priority(); }
     void action (){
+		
       // Option processing: (1) redirect I/O as requested and (2) build 
       // a C-style list of arguments, i.e., an array of pointers to
       // C-strings, terminated by an occurrence of the null poiinter.
@@ -145,7 +146,7 @@ class shellThread : public Thread {
 
           // If we get here, an error occurred in the child's attempt to exec.
           //cerr << "myshell: " << strerror(errno) << endl;     // report error.
-          exit(0);                  // child must not return, so must die now.
+          //exit(0);                  // child must not return, so must die now.
         }
     }
    
@@ -218,10 +219,12 @@ int doit( vector<string> tok ) {
     return ( WIFEXITED(temp) ) ? WEXITSTATUS(temp) : -1;
   }*/
   // You're the child.
+  cerr << "Thread starting\n";
   shellThread thread1 ("Temp name", INT_MAX,tok);
+  cerr << "thread exiting\n";
   thread1.join();
- 
-
+  cerr << "returning\n";
+  return 0;
 }
 
 
@@ -247,12 +250,14 @@ int main( int argc, char* argv[] ) {
         if ( s == "&" || s == ";" ) break;   
       }
      // thread t(do_work);
+	  cerr <<"Entering doit\n";
       int status = doit( v );           // FIX make status available.
+      cerr << "Exiting doit\n";
       //if ( errno ) cerr << "myshell: " << strerror(errno) << endl;
     }
 
   }
-  cout << "exit" << endl;
+  cerr << "exit" << endl;
   return 0;                                                  // exit.
   //*/
 //    testCompleteMe();
