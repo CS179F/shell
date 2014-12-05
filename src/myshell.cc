@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <errno.h>                       // man errno for information
 #include <cassert>
+//#include <thread>
 #include <unistd.h>
 #include <cerrno>
 #include <cstring>
@@ -17,6 +18,9 @@
 #include <readline/history.h>
 #include "thread.h"
 #include <mutex>
+#include "filesystem.h"
+
+using namespace filesystem;
 using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
@@ -123,11 +127,25 @@ class shellThread : public Thread {
 
           // tilde expansion
           if ( progname[0] == '~' ) progname = getenv("HOME")+progname.substr(1);
-          execvp( progname.c_str(), arglist );         // execute the command.
+//          execvp( progname.c_str(), arglist );         // execute the command.
+
+		  Inode<App>* junk = static_cast<Inode<App>*>((dynamic_cast<Inode<Directory>*>(root->file->theMap["bin"])->file->theMap)[tok[0]] ); //Update to put apps in a directory
+		    if ( ! junk ) {
+			  (dynamic_cast<Inode<Directory>*>(root->file->theMap["bin"])->file->theMap).erase(tok[0]);
+			  cerr << "shell: " << tok[0] << " command not found\n";
+			  continue;
+			}
+			App* thisApp = static_cast<App*>(junk->file);
+			if ( thisApp != 0 ) {
+			  thisApp(tok);          // if possible, apply cmd to its args.
+			} else { 
+			  cerr << "Instruction " << tok[0] << " not implemented.\n";
+			}
+
+
           // If we get here, an error occurred in the child's attempt to exec.
           //cerr << "myshell: " << strerror(errno) << endl;     // report error.
-		  return;
-          //exit(0);                  // child must not return, so must die now.
+          exit(0);                  // child must not return, so must die now.
         }
     }
    
@@ -175,10 +193,6 @@ class shellThread : public Thread {
        
 };
 
-
-
-
-
 int doit( vector<string> tok ) { 
   // Executes a parsed command line returning command's exit status.
 
@@ -195,31 +209,18 @@ int doit( vector<string> tok ) {
     return -1;
   }
 
-  /*
-  if ( pid_t kidpid = fork() )
+  // fork.  And, wait if child to run in foreground.
+  /*if ( pid_t kidpid = fork() )
   {      
     if ( errno || tok.back() == "&") return 0;
     int temp = 0;               
     waitpid( kidpid, &temp, 0 );
     return ( WIFEXITED(temp) ) ? WEXITSTATUS(temp) : -1;
-  }
-  */
-
-  if (1)
-  {      
-    if ( errno || tok.back() == "&") return 0;
-    int temp = 0;               
-  //  return ( WIFEXITED(temp) ) ? WEXITSTATUS(temp) : -1;
-  	shellThread thread1 ("Temp name", INT_MAX,tok);
-  	if (tok.back() == "&"){ ///continue with thread1 running in the background
-		thread1.detach(); 
-  	}   
-  	else{   //else wait for thread to complete
-  		thread1.join();
-		cerr << "Thread finished" << endl;
-  	}
-  }
-
+  }*/
+  // You're the child.
+  shellThread thread1 ("Temp name", INT_MAX,tok);
+  thread1.join();
+ 
 
 }
 
@@ -228,6 +229,7 @@ int doit( vector<string> tok ) {
 
 int main( int argc, char* argv[] ) {
 ///*
+  FSInit("info.txt");
   while ( ! cin.eof() ) {
     cout << "? " ;                                         // prompt.
     //testCompleteMe();
@@ -235,7 +237,6 @@ int main( int argc, char* argv[] ) {
     string temp = "";
     getline( cin, temp );
     cout.flush();
-    if ( temp == "exit" ) break;                             // exit.
 
     stringstream ss(temp);      // split temp at white spaces into v.
     while ( ss ) {
@@ -243,7 +244,7 @@ int main( int argc, char* argv[] ) {
       string s;
       while ( ss >> s ) {
         v.push_back(s);
-        if (s == ";" ) break;   
+        if ( s == "&" || s == ";" ) break;   
       }
      // thread t(do_work);
       int status = doit( v );           // FIX make status available.
@@ -264,3 +265,4 @@ int main( int argc, char* argv[] ) {
    // if ( WIFEXITED(status) ) { // reports exit status of proc.
    //   cout << "exit status = " << WEXITSTATUS(status) << endl;
    // }
+

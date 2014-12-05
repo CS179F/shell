@@ -580,7 +580,7 @@ void* Thread::start(Thread* myself) {                     // static.
   CPU.release();
   //pthread_exit(NULL);   
   //threadGraveyard.thread_cancel();
-  exit(0); // exit this thread so that thread_join() can return;
+  //exit(0); // exit this thread so that thread_join() can return;
 }
 
 
