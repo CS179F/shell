@@ -231,7 +231,7 @@ public:
   static Thread* me();
 
   virtual ~Thread() { 
-    exit(0);
+    //exit(0);
     //pthread_cancel(pt);
   }
 
@@ -241,6 +241,7 @@ public:
     //cerr << "\ncreating thread " << Him(this) << endl;
     //assert( ! pthread_create(&pt,NULL,(void*(*)(void*))start,this));
     pt = thread((void*(*)(void*))start,this);
+    return;
   }
   
   virtual int priority() { 
@@ -250,7 +251,9 @@ public:
   //void join() { assert( pthread_join( pt, null); ) }
   void join() { 
     //assert( pt.joinable() );
+    //cerr << "joining\n";
     pt.thread::join();
+    //cerr << "Joined.\n";
   }
    
    void detach(){
@@ -559,6 +562,7 @@ class ThreadGraveyard : Monitor {
 
 
 void* Thread::start(Thread* myself) {                     // static.
+	//cerr << "Starting thread \n";
 	myself->thread_id = this_thread::get_id();
   interrupts.set(InterruptSystem::alloff);
   
@@ -574,11 +578,17 @@ void* Thread::start(Thread* myself) {                     // static.
   interrupts.set(InterruptSystem::on);
   cdbg << "waiting for my first CPU ...\n";
   CPU.acquire();  
+  
   cdbg << "got my first CPU\n";
+  //cerr << "Starting action\n";
   myself->action();
+  //cerr << "Exiting action \n";
   cdbg << "exiting and releasing cpu.\n";
+  
+  //cerr <<"Thread releasing CPU \n";
   CPU.release();
-  //pthread_exit(NULL);   
+  //pthread_exit(NULL);  
+  //cerr << "Thread cancelling \n"; 
   //threadGraveyard.thread_cancel();
   //exit(0); // exit this thread so that thread_join() can return;
 }
@@ -673,5 +683,6 @@ public:
     return T2a(data);
   }  
 } counter;                                        // single instance
+
 
 
