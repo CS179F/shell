@@ -126,7 +126,8 @@ class shellThread : public Thread {
           execvp( progname.c_str(), arglist );         // execute the command.
           // If we get here, an error occurred in the child's attempt to exec.
           //cerr << "myshell: " << strerror(errno) << endl;     // report error.
-          exit(0);                  // child must not return, so must die now.
+		  return;
+          //exit(0);                  // child must not return, so must die now.
         }
     }
    
@@ -194,7 +195,7 @@ int doit( vector<string> tok ) {
     return -1;
   }
 
-  // fork.  And, wait if child to run in foreground.
+  /*
   if ( pid_t kidpid = fork() )
   {      
     if ( errno || tok.back() == "&") return 0;
@@ -202,14 +203,23 @@ int doit( vector<string> tok ) {
     waitpid( kidpid, &temp, 0 );
     return ( WIFEXITED(temp) ) ? WEXITSTATUS(temp) : -1;
   }
-  // You're the child.
-  shellThread thread1 ("Temp name", INT_MAX,tok);
-  if (tok.back() == "&"){ ///continue with thread1 running in the background
-	thread1.detach(); 
-  }   
-  else{   //else wait for thread to complete
-  	thread1.join();
+  */
+
+  if (1)
+  {      
+    if ( errno || tok.back() == "&") return 0;
+    int temp = 0;               
+  //  return ( WIFEXITED(temp) ) ? WEXITSTATUS(temp) : -1;
+  	shellThread thread1 ("Temp name", INT_MAX,tok);
+  	if (tok.back() == "&"){ ///continue with thread1 running in the background
+		thread1.detach(); 
+  	}   
+  	else{   //else wait for thread to complete
+  		thread1.join();
+		cerr << "Thread finished" << endl;
+  	}
   }
+
 
 }
 
