@@ -15,14 +15,14 @@
 // This code is for illustration only.  It complies, but I've not yet
 // tested it.
 
-#include<string>
-#include<iostream>
-#include<sstream>
-#include<stdio.h>
-#include<mutex>
-#include<condition_variable>
-#include<limits>
-#include<climits>
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <stdio.h>
+#include <mutex>
+#include <condition_variable>
+#include <limits>
+#include <climits>
 #include <map>
 #include <queue>
 #include <iomanip>
@@ -217,6 +217,7 @@ public:
 };
 
 
+
 template< typename Item >
 class ioDevice : public iDevice<Item>, public oDevice<Item> {
 
@@ -248,4 +249,8 @@ void writeCompletionHandler() {  // When IO-completion interrupts
 }
 
 
-int main() {}  // Just to make this file compile.
+int main() {
+  
+  cout << "HELLO" << endl;
+  return 0;
+  }  // Just to make this file compile.

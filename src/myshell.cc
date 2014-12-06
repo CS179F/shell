@@ -17,12 +17,22 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "thread.h"
-#include "Devices.h"
+//#include "Devices.h"
 #include <mutex>
 #include "filesystem.h"
+#include <condition_variable>
+#include <limits>
+#include <climits>
+#include <map>
+#include <queue>
+#include <iomanip>
+#include <signal.h>
+#include <sys/time.h>
+#include <errno.h>
 
 using namespace filesystem;
 using namespace std;
+
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
 
@@ -230,6 +240,106 @@ int doit( vector<string> tok ) {
 }
 
 
+template< typename Item >
+class iDevice : public Monitor {
+
+  istream& stream;
+
+public:
+ 
+  iDevice( istream& stream )
+    : stream(stream)
+  {}
+
+  //condition_variable ok2read;
+  bool readCompleted;
+
+  int input( Item* buffer, int n ) {
+    //EXCLUSION
+    int i = 0;
+    for ( ; i != n; ++i ) {
+      if ( !stream ) break;
+      stream >> buffer[i];                        // read a byte
+      readCompleted = false;
+      readCompleted = true;  // This line is for testing purposes
+      // only.  Delete it when interrupts are working.
+     // while( ! readCompleted ) ok2read.WAIT;
+    }
+    return i;
+  }
+
+  void completeRead() {
+    //EXCLUSION
+    readCompleted = true;
+    //ok2read.SIGNAL;
+  }
+
+};
+template< typename Item >
+class oDevice : public Monitor {
+
+  ostream& stream;
+
+public:
+ 
+  oDevice( ostream& stream )
+    : stream(stream)
+  {}
+
+  //CONDITION ok2write;
+  bool writeCompleted;
+
+  int output( Item* buffer, int n ) {
+   // EXCLUSION
+    int i = 0;
+    for ( ; i != n; ++i ) {
+      if ( !stream ) break;
+      stream << buffer[i];                       // write a byte
+      writeCompleted = false;
+      writeCompleted = true;  // This line is for testing purposes
+      // only.  Delete it when interrupts are working.
+      //while( ! writeCompleted ) ok2write.WAIT;
+    }
+    return i;
+  }
+
+  void completeWrite() {
+    //EXCLUSION
+    writeCompleted = true;
+    //ok2write.SIGNAL;
+  }
+
+};
+template< typename Item >
+class ioDevice : public iDevice<Item>, public oDevice<Item> {
+
+  iostream& stream;
+
+  ioDevice( iostream& stream )  
+    : iDevice<Item>(stream),
+      oDevice<Item>(stream)
+  {}
+
+};
+
+
+
+
+// Here is some stuff showing how to hook up interrupt handlers, etc.
+
+vector<ioDevice<char>*> v;  
+
+void readCompletionHandler() {  // When IO-completion interrupts
+  // are available, this handler should be installed to be directly 
+  // invoked by the hardawre's interrupt mechanism.
+  v[0]->completeRead();
+}
+
+void writeCompletionHandler() {  // When IO-completion interrupts
+  // are available, this handler should be installed to be directly 
+  // invoked by the hardawre's interrupt mechanism.
+  v[0]->completeWrite();
+}
 
 
 int main( int argc, char* argv[] ) {
