@@ -15,6 +15,9 @@ shell: myshell.cc
 test: testing.cc
 	$(CXX) $(CXXFLAGS) $(STDFLAGS) testing.cc -o test
 
+device: 
+	$(CXX) $(CXXFLAGS) -std=c++11 -pthread Devices.cc -o Devices
+
 history: history.cc
 	$(CXX) $(CXXFLAGS) $(STDFLAGS) history.cc -o history
 	
