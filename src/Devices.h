@@ -15,21 +15,20 @@
 // This code is for illustration only.  It complies, but I've not yet
 // tested it.
 
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <stdio.h>
-#include <mutex>
-#include <condition_variable>
-#include <limits>
-#include <climits>
+#include<string>
+#include<iostream>
+#include<sstream>
+#include<stdio.h>
+#include<mutex>
+#include<condition_variable>
+#include<limits>
+#include<climits>
 #include <map>
 #include <queue>
 #include <iomanip>
 #include <signal.h>
 #include <sys/time.h>
 #include <errno.h>
-#include "thread.h"
 using namespace std;
 
 
@@ -113,7 +112,7 @@ public:
 
 // The following version of EXCLUSION works correctly because C++ 
 // invokes destructors in the opposite order of the constructors.
-//#define EXCLUSION Sentry snt_(this); unique_lock<Monitor::mutex> lck(*this);
+#define EXCLUSION Sentry snt_(this); unique_lock<Monitor::mutex> lck(*this);
 #define CONDITION condition_variable
 #define WAIT      wait(lck)
 #define SIGNAL    notify_one()
