@@ -17,6 +17,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "thread.h"
+#include "devices.h"
 #include <mutex>
 #include "filesystem.h"
 
@@ -44,6 +45,7 @@ struct openFileTable{
   Devices *ptr; //pointer to device
   bool write;
   bool read;
+  bool free; 
 };
 
 
