@@ -1,11 +1,11 @@
-#include<string>
-#include<iostream>
-#include<sstream>
-#include<stdio.h>
-#include<mutex>
-#include<condition_variable>
-#include<limits>
-#include<climits>
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <stdio.h>
+#include <mutex>
+#include <condition_variable>
+#include <limits>
+#include <climits>
 #include <map>
 #include <queue>
 #include <iomanip>
@@ -29,6 +29,7 @@
 #include <errno.h>
 #include <assert.h>
 
+#include <devices.h>
 
 //Interrupts and IOCTL header
 #ifdef __linux
