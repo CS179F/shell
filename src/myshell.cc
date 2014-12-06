@@ -17,7 +17,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "thread.h"
-#include "devices.h"
+#include "Devices.h"
 #include <mutex>
 #include "filesystem.h"
 
