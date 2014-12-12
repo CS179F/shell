@@ -650,7 +650,7 @@ map<string, App*> apps = {
   pair<const string, App*>("cd", cd),
   pair<const string, App*>("touch", touch),
   pair<const string, App*>("pwd", pwd),
-  pair<const string, App*>("tree", tree)
+  pair<const string, App*>("fstree", tree)
 };  // app maps mames to their implementations.
 
 
