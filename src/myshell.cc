@@ -72,9 +72,7 @@ class shellThread : public Thread {
       //   
       //
         string progname = tok[0];
-       
         tmp.setid(getpid(), getppid());
-        cout << "PID: " << tmp.pid << " PPID: " << *tmp.ppid << endl;
         //testCompleteMe();
         char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
         int argct = 0;
