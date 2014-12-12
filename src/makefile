@@ -10,14 +10,14 @@ source:
 	./sourcec11
 
 shell: myshell.cc
-	$(CXX) $(CXXFLAGS) $(STDFLAGS) -lreadline -pthread myshell.cc thread.h  -o shell
+	$(CXX) $(CXXFLAGS) $(STDFLAGS) -lreadline -pthread myshell.cc thread.h -o shell
 	
 test: testing.cc
 	$(CXX) $(CXXFLAGS) $(STDFLAGS) testing.cc -o test
 
-device: 
-	$(CXX) $(CXXFLAGS) -std=c++11 -pthread Devices.cc -o Devices
-
+devices: devices.cpp
+	$(CXX) $(CXXFLAGS) -std=c++11 -pthread devices.cpp devices.h devicemain.cpp -w -o devices
+	
 history: history.cc
 	$(CXX) $(CXXFLAGS) $(STDFLAGS) history.cc -o history
 	
