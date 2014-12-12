@@ -215,13 +215,14 @@ int doit( vector<string> tok ) {
   assert( progname != "" );
 
   // A child process can't cd for its parent.
+  /*
   if ( progname == "cd" ) {                    // chdir() and return.
     chdir( tok.size() > 1 ? tok[1].c_str() : getenv("HOME") );
     if ( ! errno ) return 0;
     cerr << "myshell: cd: " << strerror(errno) << endl;
     return -1;
   }
-
+	*/
   // fork.  And, wait if child to run in foreground.
   /*if ( pid_t kidpid = fork() )
   {      
@@ -231,11 +232,11 @@ int doit( vector<string> tok ) {
     return ( WIFEXITED(temp) ) ? WEXITSTATUS(temp) : -1;
   }*/
   // You're the child.
-  cerr << "Thread starting\n";
+  //cerr << "Thread starting\n";
   shellThread thread1 ("Temp name", INT_MAX,tok);
-  cerr << "thread exiting\n";
+  //cerr << "thread exiting\n";
   thread1.join();
-  cerr << "returning\n";
+  //cerr << "returning\n";
   return 0;
 }
 
@@ -362,14 +363,14 @@ int main( int argc, char* argv[] ) {
         if ( s == "&" || s == ";" ) break;   
       }
      // thread t(do_work);
-	  cerr <<"Entering doit\n";
+	  //cerr <<"Entering doit\n";
       int status = doit( v );           // FIX make status available.
-      cerr << "Exiting doit\n";
+      //cerr << "Exiting doit\n";
       //if ( errno ) cerr << "myshell: " << strerror(errno) << endl;
     }
 
   }
-  cerr << "exit" << endl;
+  //cerr << "exit" << endl;
   return 0;                                                  // exit.
   //*/
 //    testCompleteMe();
