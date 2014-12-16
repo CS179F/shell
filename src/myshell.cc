@@ -26,14 +26,6 @@ using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
 
-/*
-void testCompleteMe(){
-    char *complete = readline("");
-    cout << string(complete);
-    //printf("%s\n", complete);
-    delete complete;
-}
-*/
 int doit( vector<string> tok );
 
 struct Devices{
@@ -67,11 +59,7 @@ class shellThread : public Thread {
     int priority() {return Thread::priority(); }
     void action (){
 		
-      // Option processing: (1) redirect I/O as requested and (2) build 
-      // a C-style list of arguments, i.e., an array of pointers to
-      // C-strings, terminated by an occurrence of the null poiinter.
-      //   
-      //
+    
         string progname = tok[0];
         tmp.setid(getpid(), getppid());
         //testCompleteMe();
@@ -153,41 +141,7 @@ class shellThread : public Thread {
     }
    
    
-    /*
-    void action()
-    {
-       
-        char* argv[exec_data.size()+1];
-        int i = 0;
-        for ( i = 0; i < exec_data.size(); ++i)
-        {
-            argv[i] = new char ('\0');
-            strcpy(argv[i], exec_data[i].c_str());
-        }
-        argv[i] = 0; // Null terminating argv for execvp
-        int pid;
-        if ((pid = fork()) < 0) { // Fork
-            cerr << "Fork failed.\n";
-            exit(1);
-        }
-        else if (pid == 0) {      // Child   
-            if (execvp(argv[0], argv) < 0) {    
-                cerr << "Exec failed.\n";
-                exit(1);
-            }
-        }
-        else // Parent
-        {
-            //Delete all the dynamically allocated pointers for this argv
-            for (int i = 0 ; i < exec_data.size() ; ++i)
-            {
-                delete argv[i];
-            }
-            cerr << Me() << " has executed the command \n";
-            //threadGraveyard.thread_cancel(); // cancel parent thread;
-        }
-    }
-    */
+ 
    
     public:
         shellThread(string name, int priority, vector<string> v)
@@ -203,7 +157,26 @@ int doit( vector<string> tok ) {
 
   string progname = tok[0]; 
   assert( progname != "" );
-
+  if(progname == "menu"){
+    cout << "ls: list contents of the current directory" << endl; 
+  cout << "mkdir: creates directory with specified name" << endl; 
+  cout << "rmdir: removes directory with specified name" << endl; 
+  cout << "exit: ends execution of the shell"<< endl; 
+  cout <<  "rm: removes file with specified name"<< endl; 
+  cout << "cd: changes current working directory to specified directory"<< endl;
+ cout << "touch: access/change access and modification timestamps"<< endl;
+  cout << "pwd: displays current working directory"<< endl;
+cout << "tree: outputs list of directories and associated directories"<< endl;
+cout << "echo: sends specified string to standard output"<< endl;
+cout << "cat: concatenates specified string onto standard output or specified file" << endl;
+cout << "wc: prints newline, word, and byte counts for each file" << endl;
+cout << "write: writes to a file descriptor" << endl;
+cout << "read: read specified amount of bytes from file descriptor into buffer"<< endl;
+cout << "cp: copies specified file or directory"<< endl;
+return -1;
+  }
+ 
+      
   // A child process can't cd for its parent.
   /*
   if ( progname == "cd" ) {                    // chdir() and return.
