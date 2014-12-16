@@ -27,7 +27,7 @@ using namespace std;
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
 
 int doit( vector<string> tok );
-
+/*
 struct Devices{
   int deviceNumber;
   string driverName;
@@ -52,7 +52,7 @@ struct processTable{
 };
 
 thread_local processTable tmp;
-
+*/
 int doit( vector<string> tok );
 class shellThread : public Thread {
     vector<string> tok;
@@ -61,7 +61,7 @@ class shellThread : public Thread {
 		
     
         string progname = tok[0];
-        tmp.setid(getpid(), getppid());
+        //tmp.setid(getpid(), getppid());
         //testCompleteMe();
         char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
         int argct = 0;
@@ -174,6 +174,10 @@ cout << "write: writes to a file descriptor" << endl;
 cout << "read: read specified amount of bytes from file descriptor into buffer"<< endl;
 cout << "cp: copies specified file or directory"<< endl;
 return -1;
+  }
+  if(progname == "pstree"){
+    
+    
   }
  
       

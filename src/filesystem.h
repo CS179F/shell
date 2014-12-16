@@ -263,8 +263,93 @@ Directory* wd() { return wdi->file; }        // Working Directory
 
 
 string current = "/";
+//////////////////////////
+class Monitor {
+  // ...
+};
+
+class Condition {
+public:
+  Condition( Monitor* m ) {}
+  // ...
+};
 
 
+// Note that the methods of these Monitors need EXCLUSION.  Including
+// constructors and destructors?  Open question: what about
+// initialization lists; what protects them?  I suspect that, ilist
+// and systemwideOpenFileTable will need to be encapsulated within
+// monitors that protect the creation and destruction of their
+// entries.
+
+
+class DeviceDriver : Monitor {
+
+  Condition ok2read;   // nonempty
+  Condition ok2write;  // nonfull
+
+public: 
+
+  DeviceDriver() 
+    : ok2read(this), ok2write(this)
+  {
+    // initialize this device
+    // install completion handler
+  }
+
+  ~DeviceDriver() {
+    // finalize this device: whatever's opposite of initialize
+  }
+
+  int registerDevice( string s ) {
+    // create an inode for this device, install it into the 
+    // ilist, and return it inumbner, i.e., index within the
+    // ilist.
+  }
+
+  void online() {
+    // make this device accessible
+  }
+
+  void offline() {
+    // make this device inaccessible
+  }
+
+  void fireup()  { // begin processing a stream of data.
+    // device-specific implementation
+  }
+
+  void suspend() { // end processing of astream of data.
+    // device-specific implementation
+  }
+  
+  int read(...) {
+    // device-specific implementation
+  }
+  
+  int write(...) {
+    // device-specific implementation
+  }
+
+  int seek(...) {
+    // device-specific implementation
+  }
+
+  int rewind(...) {
+    // device-specific implementation
+  }
+
+  int ioctl(...) {
+    // device-specific implementation
+  }
+
+};
+
+
+///////////////////////////
+
+
+//////////////////////////
 class SetUp {
 public:
   string input = "";
@@ -296,6 +381,7 @@ public:
     vector< string > v = split( input, "/" );
     /*for (int i = 0; i < v.size(); i++) 
       cout << v[i] << endl;*/
+      cout << "beginning of setup\n";
     segCount = v.size();
     assert( segCount > 0 );
     firstSeg = v.front();  
@@ -307,7 +393,7 @@ public:
     stringstream prefix;
     if ( segCount > 1 ) {  
       if ( v[0] == "" ) ind = root;
-       cout << "hello you fucks\n";
+       cout << "segcount > 1\n";
       for ( auto it : v ) suffix.push( it ); // put everything onto a queue.
       for (;;) {                          // now iterate through that queue.
         // must check each intermediated directory for existence.  FIX
@@ -1057,6 +1143,11 @@ void FSInit(string file){
       vector<string> filepaths;
       for(auto it = rfile.begin(); it != rfile.end(); ++it) {
         filepaths = split(*it,";");
+        //cout << "!!!!!!!!!!!!!!!!!!" << endl;
+        //for(int i = 0; i < filepaths.size(); ++i){
+          //cout << filepaths[i] << "::";
+        //}
+        //cout << endl << "!!!!!!!!!!!!!!!!!!" << endl;
         c = atol(filepaths[2].c_str());
         m = atol(filepaths[3].c_str());
         a = atol(filepaths[4].c_str());
