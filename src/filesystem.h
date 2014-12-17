@@ -347,8 +347,114 @@ public:
 
 
 ///////////////////////////
+template<>
+class Inode<Monitor>
+{
+  public:
+  int linkCount; // =0 // incremented/decremented by ln/rm
+  int openCount; // =0 // incremented/decremented by OpenFile()/~OPenFile()
+  bool readable; // = false;  // set by create. 
+  bool writeable; // = false; // set by create.
+  enum Kind { regular, directory, symlink, pipe, socket, device } kind;
+  // kind is set by open.
+  time_t ctime, mtime, atime;
 
+  ~Inode<Monitor>() {
+  }
 
+  int unlink() { 
+    assert( linkCount > 0 );
+    -- linkCount;
+    cleanup();
+  }
+  void cleanup() {
+    if ( ! openCount && ! linkCount ) {
+      // throwstuff away
+    }
+  }
+  DeviceDriver* driver;  // null unless kind == device.  set by open
+  string* bytes;         // null unless kind == regular.  set by open
+                         // Not using major and minor numbers.
+};
+class OpenFile : Monitor {  
+public:
+
+  int accessCount;  // = 0;        // incremented by open()
+  // the following are filled in by open()
+  Inode<Monitor>* inode;        
+  bool open4read;      
+  bool open4write;     
+  int byteOffset; // = 0; 
+  string* bytes;
+  DeviceDriver* driver; 
+  Inode<Monitor>::Kind kind;    
+  pid_t a;
+  pid_t* b;
+  void set(pid_t x, pid_t y){
+    a = x;
+    b = &y;
+    cout << "COMPLETE::1"<< endl;
+  } 
+  void printtf(){
+    cout << a << ":::" << b << endl;
+  }
+  OpenFile( Inode<Monitor>* inode )        // use of RAII
+    : inode(inode), 
+      // chche some info from inode into loacal variables:
+      kind(inode->kind),
+      bytes(inode->bytes),
+      driver(inode->driver)
+  {}
+
+  ~OpenFile() {                    // use of RAII
+    --inode->openCount;
+    inode->cleanup();
+  }
+
+  int close() {
+    // pass to inode and invoke
+  }
+
+  // These operations must update access times in inode
+  int read(...)  {
+    if ( kind == Inode<Monitor>::device ) return driver->read(); 
+    // implement here read(...) on regular files here
+  }
+  int write(...) {
+    if ( kind == Inode<Monitor>::device ) return driver->write(); 
+    // implement here write(...) to regular files here
+  }
+  int seek(...)  {
+    if ( kind == Inode<Monitor>::device ) return driver->seek(); 
+    // implement here read(...) on regular files here
+  }
+  int rewind( int pos ) {
+    if ( kind == Inode<Monitor>::device ) return driver->rewind(); 
+    // implement rewind(...) from regular files here
+  } 
+  int ioctl( ... ) {
+    if ( kind == Inode<Monitor>::device ) return inode->driver->ioctl(); 
+    // report error; I don't think that regular files support ioctl()
+    // Please check this.
+  }
+
+};
+//list<OpenFile> systemwideOpenFileTable;
+//thread_local list<OpenFile> sys;
+/*
+class ThreadLocalOpenFile {     
+    // don't need to be Monitors
+    public:
+  OpenFile* file;
+  ThreadLocalOpenFile( OpenFile* file )     // use of RAII
+    : file(file)
+  {
+    ++ file->accessCount;
+  }
+  ~ThreadLocalOpenFile() {                  // use of RAII
+    -- file->accessCount;
+  }
+};*/
 //////////////////////////
 class SetUp {
 public:

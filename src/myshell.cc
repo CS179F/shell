@@ -53,14 +53,37 @@ struct processTable{
 
 thread_local processTable tmp;
 */
-int doit( vector<string> tok );
+
+class ThreadLocalOpenFile {     
+    // don't need to be Monitors
+    public:
+  
+  OpenFile* file;
+  
+  
+  ThreadLocalOpenFile() {}
+  ThreadLocalOpenFile( OpenFile* file )     // use of RAII
+    : file(file)
+  {
+    ++ file->accessCount;
+  }
+  ~ThreadLocalOpenFile() {                  // use of RAII
+    -- file->accessCount;
+  }
+  
+
+};
+thread_local ThreadLocalOpenFile sys;
 class shellThread : public Thread {
     vector<string> tok;
     int priority() {return Thread::priority(); }
     void action (){
-		
-    
+
         string progname = tok[0];
+       
+        //sys.print();
+        //sys->set(*getpid(), *getppid());
+        //sys.printtf();
         //tmp.setid(getpid(), getppid());
         //testCompleteMe();
         char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
