@@ -194,6 +194,10 @@ int main( int argc, char* argv[] ) {
 		histhold.push_back(temp);
 	}
     cout.flush();
+	if (temp == "clear"){
+		cout << string(100,'\n'); 
+		temp=""; 
+	}
 	
 	if(temp == "history"){
 		int i = 1;
