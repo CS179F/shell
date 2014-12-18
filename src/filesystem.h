@@ -468,7 +468,7 @@ public:
   bool error = false;
   string cmd;
   vector<string> args;
-  void show() {  // Diagnostic
+  /*void show() {  // Diagnostic
     cerr << "input = " << input << endl;
     cerr << "segcount = " << segCount << endl;
     cerr << "firstSeg = " << firstSeg << endl;
@@ -478,16 +478,17 @@ public:
     cerr << "cmd = " << cmd << endl;
     for ( auto it : args ) cerr << it << " ";
     cerr << endl;
-  }
+  }*/
   SetUp ( vector<string> args )   
     : args(args),
       cmd(args[0])
-  { input = args.size() > 1 ? args[1] : "";
+  {  
+	input = args.size() > 1 ? args[1] : "";
     if ( input == "" ) return;
     vector< string > v = split( input, "/" );
     /*for (int i = 0; i < v.size(); i++) 
       cout << v[i] << endl;*/
-      cout << "beginning of setup\n";
+      //cout << "beginning of setup\n";
     segCount = v.size();
     assert( segCount > 0 );
     firstSeg = v.front();  
@@ -499,7 +500,7 @@ public:
     stringstream prefix;
     if ( segCount > 1 ) {  
       if ( v[0] == "" ) ind = root;
-       cout << "segcount > 1\n";
+       //cout << "segcount > 1\n";
       for ( auto it : v ) suffix.push( it ); // put everything onto a queue.
       for (;;) {                          // now iterate through that queue.
         // must check each intermediated directory for existence.  FIX
@@ -1240,7 +1241,7 @@ void FSInit(string file){
   {
     while ( getline (myfile,line) )
     {
-      cout << line << '\n';
+      //cout << line << '\n';
       stringstream ss(line);             // split temp at white spaces.
       vector<string> rfile;          // then get its cmd-line arguments.
       string s;

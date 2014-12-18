@@ -19,6 +19,8 @@
 #include "thread.h"
 #include <mutex>
 #include "filesystem.h"
+#include <queue>
+#include <deque>
 
 
 using namespace filesystem;
@@ -26,8 +28,12 @@ using namespace std;
 
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
 
+
+
 int doit( vector<string> tok );
 
+//Queue for command history
+deque<string>histhold;
 
 class ThreadLocalOpenFile {     
     // don't need to be Monitors
@@ -180,21 +186,36 @@ int main( int argc, char* argv[] ) {
 
     string temp = "";
     getline( cin, temp );
+	if(histhold.size() < 10){
+		histhold.push_back(temp);
+	}
+	else{
+		histhold.pop_front();
+		histhold.push_back(temp);
+	}
     cout.flush();
+	
+	if(temp == "history"){
+		int i = 1;
+		for (auto it = histhold.cbegin(); it != histhold.cend(); ++it){
+			cout << i << ": " <<  *it << endl;
+			++i;
+		}
+	}
+	else{
+		stringstream ss(temp);      // split temp at white spaces into v.
+		while ( ss ) {
+		vector<string> v;
+		string s;
+		while ( ss >> s ) {
+			v.push_back(s);
+			if ( s == "&" || s == ";" ) break;   
+		}
 
-    stringstream ss(temp);      // split temp at white spaces into v.
-    while ( ss ) {
-      vector<string> v;
-      string s;
-      while ( ss >> s ) {
-        v.push_back(s);
-        if ( s == "&" || s == ";" ) break;   
-      }
-
-      int status = doit( v );           // FIX make status available.
+		int status = doit( v );           // FIX make status available.
      
-    }
-
+		}
+	}
   }
   //cerr << "exit" << endl;
   return 0;                                                  // exit.
