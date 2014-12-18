@@ -10,7 +10,7 @@ source:
 	./sourcec11
 
 shell: myshell.cc
-	$(CXX) $(CXXFLAGS) $(STDFLAGS) -lreadline -pthread myshell.cc thread.h -o shell
+	$(CXX) $(CXXFLAGS) $(STDFLAGS) -lreadline -pthread myshell.cc filesystem.h thread.h -o shell
 	
 test: testing.cc
 	$(CXX) $(CXXFLAGS) $(STDFLAGS) testing.cc -o test
