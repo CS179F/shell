@@ -27,32 +27,7 @@ using namespace std;
 #define each(I) for( typeof((I).begin()) it=(I).begin(); it!=(I).end(); ++it )
 
 int doit( vector<string> tok );
-/*
-struct Devices{
-  int deviceNumber;
-  string driverName;
-};
 
-struct openFileTable{
-  Devices *ptr; //pointer to device
-  bool write;
-  bool read;
-};
-
-
-struct processTable{
-    pid_t pid;
-    pid_t *ppid;
-    openFileTable opfile[32];
-   
-    void setid(pid_t p, pid_t pp){pid = p; ppid = &pp;}
-    void print(){
-        cout << "[PID: " << pid << "][PPID: " << *ppid << "]" << endl;
-    }
-};
-
-thread_local processTable tmp;
-*/
 
 class ThreadLocalOpenFile {     
     // don't need to be Monitors
@@ -80,12 +55,6 @@ class shellThread : public Thread {
     void action (){
 
         string progname = tok[0];
-       
-        //sys.print();
-        //sys->set(*getpid(), *getppid());
-        //sys.printtf();
-        //tmp.setid(getpid(), getppid());
-        //testCompleteMe();
         char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
         int argct = 0;
         for ( int i = 0; i != tok.size(); ++i ) {
@@ -126,12 +95,7 @@ class shellThread : public Thread {
               // Append tok[i].c_str() to arglist
               arglist[argct] = new char[1+tok[i].size()]; 
               strcpy( arglist[argct], tok[i].c_str() );
-              // arglist[argct] = const_cast<char*>( tok[i].c_str() );
-              // Per C++2003, Section 21.3.7: "Nor shall the program treat
-              // the returned value [ of .c_str() ] as a valid pointer value
-              // after any subsequent call to a non-const member function of
-              // basic_string that designates the same object as this."
-              // And, there are no subsequent operations on these strings.
+
               arglist[++argct] = 0; // C-lists of strings end w null pointer.
             }
           }
@@ -156,10 +120,6 @@ class shellThread : public Thread {
 			  cerr << "Instruction " << tok[0] << " not implemented.\n";
 			}
 
-
-          // If we get here, an error occurred in the child's attempt to exec.
-          //cerr << "myshell: " << strerror(errno) << endl;     // report error.
-          //exit(0);                  // child must not return, so must die now.
         }
     }
    
@@ -202,27 +162,6 @@ return -1;
     
     
   }
- 
-      
-  // A child process can't cd for its parent.
-  /*
-  if ( progname == "cd" ) {                    // chdir() and return.
-    chdir( tok.size() > 1 ? tok[1].c_str() : getenv("HOME") );
-    if ( ! errno ) return 0;
-    cerr << "myshell: cd: " << strerror(errno) << endl;
-    return -1;
-  }
-	*/
-  // fork.  And, wait if child to run in foreground.
-  /*if ( pid_t kidpid = fork() )
-  {      
-    if ( errno || tok.back() == "&") return 0;
-    int temp = 0;               
-    waitpid( kidpid, &temp, 0 );
-    return ( WIFEXITED(temp) ) ? WEXITSTATUS(temp) : -1;
-  }*/
-  // You're the child.
-  //cerr << "Thread starting\n";
   shellThread thread1 ("Temp name", INT_MAX,tok);
   //cerr << "thread exiting\n";
   thread1.join();
@@ -234,12 +173,11 @@ return -1;
 
 
 int main( int argc, char* argv[] ) {
-///*
+
   FSInit("info.txt");
   while ( ! cin.eof() ) {
     cout << "? " ;                                         // prompt.
-    //testCompleteMe();
-    // testCompleteMe();
+
     string temp = "";
     getline( cin, temp );
     cout.flush();
@@ -252,11 +190,9 @@ int main( int argc, char* argv[] ) {
         v.push_back(s);
         if ( s == "&" || s == ";" ) break;   
       }
-     // thread t(do_work);
-	  //cerr <<"Entering doit\n";
+
       int status = doit( v );           // FIX make status available.
-      //cerr << "Exiting doit\n";
-      //if ( errno ) cerr << "myshell: " << strerror(errno) << endl;
+     
     }
 
   }
@@ -265,12 +201,4 @@ int main( int argc, char* argv[] ) {
   //*/
 //    testCompleteMe();
 }
-
-
-///////////////// Diagnostic Tools /////////////////////////
-
-   // cout.flush();
-   // if ( WIFEXITED(status) ) { // reports exit status of proc.
-   //   cout << "exit status = " << WEXITSTATUS(status) << endl;
-   // }
 
