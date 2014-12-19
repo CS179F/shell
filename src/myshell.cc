@@ -68,6 +68,7 @@ class shellThread : public Thread {
       string progname = tok[0];
       char* arglist[ 1 + tok.size() ];   // "1+" for a terminating null ptr.
       int argct = 0;
+      vector<string> apptok;
       for ( int i = 0; i != tok.size(); ++i ) {
             if      ( tok[i] == "&" || tok[i] == ";" ) break;   // arglist done.
             else if ( tok[i] == "<"  ) freopen( tok[++i].c_str(), "r", stdin  );
@@ -99,11 +100,8 @@ class shellThread : public Thread {
             } 
             else {           // add this token a C-style argv for execvp().
               // Append tok[i].c_str() to arglist
-              arglist[argct] = new char[1+tok[i].size()]; 
-              strcpy( arglist[argct], tok[i].c_str() );
-
-              arglist[++argct] = 0; // C-lists of strings end w null pointer.
-            }
+              apptok.push_back(tok[i]);
+	    }
           }
          
 
@@ -114,13 +112,14 @@ class shellThread : public Thread {
 		  Inode<App>* junk = static_cast<Inode<App>*>((dynamic_cast<Inode<Directory>*>(root->file->theMap["bin"])->file->theMap)[tok[0]] ); //Update to put apps in a directory
 
 		    if ( ! junk ) {
-			  (dynamic_cast<Inode<Directory>*>(root->file->theMap["bin"])->file->theMap).erase(tok[0]);
-			  cerr << "shell: " << tok[0] << " command not found\n";
+			  (dynamic_cast<Inode<Directory>*>(root->file->theMap["bin"])->file->theMap).erase(apptok[0]);
+			  cerr << "shell: " << apptok[0] << " command not found\n";
 			  continue;
 			}
 			App* thisApp = static_cast<App*>(junk->file);
 			if ( thisApp != 0 ) {
-			  thisApp(tok);          // if possible, apply cmd to its args.
+			  thisApp(apptok);
+			  freopen("/dev/tty", "a", stdout);          // if possible, apply cmd to its args.
 			  return;
 			} else { 
 			  cerr << "Instruction " << tok[0] << " not implemented.\n";
@@ -197,16 +196,22 @@ int main( int argc, char* argv[] ) {
 	if (temp == "clear"){
 		cout << string(100,'\n'); 
 		temp=""; 
-	}
-	
-	if(temp == "history"){
-		int i = 1;
-		for (auto it = histhold.cbegin(); it != histhold.cend(); ++it){
-			cout << i << ": " <<  *it << endl;
-			++i;
-		}
-	}
-	else{
+	} else{
+     if(temp == "history"){
+       int i = 1;
+       int cmd;
+       for (auto it = histhold.cbegin(); it != histhold.cend(); ++it){
+          cout << i << ": " <<  *it << endl;
+          ++i;
+       }
+   
+       cout << "Command #: ";
+       cin >> cmd;
+       cin.clear(); cin.ignore(100,'\n');
+       //cout << "selected is " << histhold[cmd - 1] << endl;
+       temp = histhold[cmd - 1];
+    }
+
 		stringstream ss(temp);      // split temp at white spaces into v.
 		while ( ss ) {
 		vector<string> v;
