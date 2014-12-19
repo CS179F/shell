@@ -6,15 +6,15 @@
 //=====
 
 // signal mask pseudo constants
-sigset_t InterruptSystem::on;
-sigset_t InterruptSystem::alrmoff;
-sigset_t InterruptSystem::alloff;
+//sigset_t InterruptSystem::on;
+//sigset_t InterruptSystem::alrmoff;
+//sigset_t InterruptSystem::alloff;
 
 // used to maintain a record of reusable file descriptors
 // deviceNumbers
-InterruptSystem interrupts;// singleton instance.
+//InterruptSystem interrupts;// singleton instance.
 
-vector<Inode> ilist;
+//vector<Inode> ilist;
 //vector<Device*> drivers;
 map<string,Device*> drivers;
 
@@ -22,7 +22,7 @@ vector<int> freedDeviceNumbers;
 
 //============================================================
 
-
+/*
 Monitor::Monitor( sigset_t mask )   
     : mask(mask) {}
 Sentry::Sentry( Monitor* m ) 
@@ -32,8 +32,8 @@ Sentry::~Sentry() {
 	interrupts.set( old );                              
 }
 
-
-
+*/
+/*
 Semaphore::Semaphore(int count)
 	: count(count) {
 	//
@@ -48,8 +48,8 @@ void Semaphore::acquire() {
 	while(count == 0) available.WAIT;
 	--count;
 }
-
-
+*/
+/*
 
 Inode::Inode() {}
 Inode::~Inode() {}
@@ -64,7 +64,7 @@ void Inode::cleanup() {
 		//throwaway stuff
 	}
 }
-
+*/
 
 // this constructor originally had an initialization of
 // deviceNumber(drivers.size()) which is not safe. the
@@ -222,7 +222,7 @@ void Device::shutdown() {
 	cout << "shuting down " << driverName << endl;
 }
 void Device::initialize() {
-	cout << "initializing down " << driverName << endl;
+	cout << "initializing " << driverName << endl;
 }
 void Device::finalize() {
 	cout << "finalizing " << driverName << endl;
@@ -260,139 +260,9 @@ Device * getDeviceFd(int fd) {
 		     i++;
 		 }
 	}
+	return NULL;
 }
 
 //==================================================================
 
 
-
-/*
-template< class Item >
-iDevice::iDevice(istream *stream) {
-	stream = stream;
-	Device("iDevice");
-}
-
-template< typename Item >
-iDevice::~iDevice() {}
-
-template< typename Item >
-int iDevice::input(Item* buffer, int n) {
-	;//
-}
-
-template< typename Item >
-int iDevice::read(Item* buffer, size_t count) {
-	EXCLUSION
-	int i = 0;
-	for(i = 0; i < count; i++)
-	{
-		//return if eof encountered with amount read
-		assert(buffer[i]);
-		if(!stream)
-		{
-		stream->seekg(offsetIn);
-		stream->clear(); //clear eofbit after reading eof
-		return (bytesRead = i);
-		}
-		int tmp = stream->tellg();
-		buffer[i] = stream->get();
-
-		//read character from bytes then store into buffer
-		//cout << "Reading '" << (char)buffer[i] << "' from position tellg() " << tmp
-		//	<< " and position offset " << offsetIn << " of device '" << this->driverName << "'" << endl;
-		offsetIn++; 
-		readCompleted = false;
-		readCompleted = true;
-		while( ! readCompleted ) ok2read.WAIT;						
-	}
-	//return with amount read
-	stream->seekg(offsetIn);
-	//bytesRead = i
-	return (bytesRead = i);		
-}
-
-template< typename Item >
-int iDevice::seek(off_t newOffset, int whence) {
-	EXCLUSION
-	//set position to passed in position
-	if(whence == SEEK_SET)
-	{
-	//get end position to save in our offset variable
-	off_t save = stream->tellg();
-	stream->seekg(0, ios_base::end);
-	off_t end = stream->tellg();
-	stream->seekg(save);
-
-	//save position in our offset variable
-	offsetIn = newOffset;
-
-	if(offsetIn >  end)
-	{
-	offsetIn = end;
-	}
-
-
-	//set positions
-	stream->seekg(offsetIn,ios_base::beg);//move get pointer - read
-	}
-
-	//set position to current position + passed in position
-	else if(whence == SEEK_CUR)
-	{
-	//get end position to save in our offset variable
-	off_t save = stream->tellg();
-	stream->seekg(0, ios_base::end);
-	off_t end = stream->tellg();
-	stream->seekg(save);
-
-	//save position in our offset variable
-	offsetIn += newOffset;			
-
-	if(offsetIn >  end)
-	{
-	offsetIn = end;
-	}
-
-	//set positions 
-	stream->seekg(offsetIn, ios_base::beg);
-	}
-
-	else if(whence == SEEK_END)
-	{
-
-	//get end position to save in our offset variable
-	off_t save = stream->tellg();
-	stream->seekg(0, ios_base::end);
-	off_t end = stream->tellg();
-	stream->seekg(save);
-
-	//save position in our offset variable
-	offsetIn = end + newOffset;
-
-	if(offsetIn > end)
-	{
-	offsetIn = end;
-	}
-
-	//set positions
-	stream->seekg(offsetIn,ios_base::beg);
-	//
-	} 
-	return offsetIn;
-}
-
-template< typename Item >
-int iDevice::rewind(int pos) {
-	seek(0,SEEK_SET);
-	return 0;
-}
-
-template< typename Item >
-void iDevice::completeRead() {
-	EXCLUSION
-	cout <<"readComplete" << endl;
-	readCompleted = true;
-	ok2read.SIGNAL;
-}
-*/

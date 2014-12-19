@@ -9,12 +9,11 @@
 */
 
 
-
 #ifndef DEVICES_H
 #define DEVICES_H 
 
-#include <pthread.h>
-#include <semaphore.h>
+//#include <pthread.h>
+//#include <semaphore.h>
 #include <climits>
 
 #include <map>
@@ -28,7 +27,6 @@
 #include <vector>
 #include <list>
 #include <cassert>
-#include <strstream>
 #include <cstring>
 #include <cstdio>
 
@@ -39,8 +37,8 @@
 #include <sstream>
 #include <errno.h>
 #include <assert.h>
-#include <mutex>
-#include <condition_variable>
+
+#include "thread.h"
 
 
 //Interrupts and IOCTL header
@@ -85,13 +83,13 @@ class Device;
 
 	InterruptSystem interrupts;// singleton instance.
 */
-
+//class Inode;
 extern map<string,Device*> drivers;
 extern vector<int> freedDeviceNumbers;
 
 //=========================== interrupts ======================
 
-
+/*
 class InterruptSystem {
 public:// man sigsetops for details on signal operations.
   //static void handler(int sig);
@@ -127,10 +125,10 @@ public:// man sigsetops for details on signal operations.
 	} //like set but leaves blocked those signals already blocked.
 };
 
-
+*/
 
 //============================================================
-
+/*
 class Monitor : public mutex {
 public:
 	sigset_t mask;
@@ -144,7 +142,7 @@ class Sentry {  // To automatically block and restore interrupts.
 	Sentry( Monitor* m );
 	~Sentry();
 };
-
+*/
 
 // Translation of my coordination primitives to C++14's.  The only
 // thing that C++14 lacks is prioritized waiting, which is very 
@@ -152,12 +150,12 @@ class Sentry {  // To automatically block and restore interrupts.
 
 // The following version of EXCLUSION works correctly because C++ 
 // invokes destructors in the opposite order of the constructors.
-#define EXCLUSION Sentry snt_(this); unique_lock<Monitor::mutex> lck(*this);
-#define CONDITION condition_variable
-#define WAIT      wait(lck)
-#define SIGNAL    notify_one()
+//#define EXCLUSIONdev Sentry snt_(this); unique_lock<Monitor::mutex> lck(*this);
+//#define CONDITION condition_variable
+//#define WAIT      wait(lck)
+//#define SIGNAL    notify_one()
 
-
+/*
 
 class Semaphore : public Monitor {
 // signal-safe semaphore
@@ -172,6 +170,8 @@ public:
   void acquire();
 };
 
+*/
+/*
 
 class Inode : Monitor {
 public: 
@@ -190,7 +190,7 @@ public:
 	Device* driver;
 	string* bytes;
 };
-
+*/
 //==================================================================
 
 
@@ -207,7 +207,7 @@ public:
 	int deviceNumber;
 	string driverName;
 	
-	Inode *inode;
+	//Inode *inode;
 	int inodeCount = 0;
 	int openCount = 0;
 	bool readable;
@@ -237,15 +237,16 @@ public:
 	virtual int write();
 };
 
-
-
+//--------------------------------------------------
 
 template< typename Item >
 class iDevice : public Device {
 	
 	istream *stream;
 	stringstream sstream;
+	fstream* fstreamy;
 	int offsetIn = 0;
+  	int bufSize = 1024;//used for overloaded operators
   
 	public:
 	iDevice( istream *stream )
@@ -262,36 +263,31 @@ class iDevice : public Device {
 	{
 		offsetIn = 0;
 		stream = &sstream;
+		stream->seekg(offsetIn,ios_base::beg);
+	}
+
+	iDevice( fstream* s )
+		: fstreamy(s), 
+		Device("iDevice")
+	{
+		offsetIn = 0;
+		stream = fstreamy;
 		//static_cast<istream*>(&sstream);
 		stream->seekg(offsetIn,ios_base::beg);
 	}
 
-	CONDITION ok2read;
+	//CONDITION ok2read;
 	bool readCompleted;
 
-	/*int input(Item* buffer, int n) {
-		EXCLUSION
-		int i;
-		for (i = 0; i < n; ++i)
-		{
-			if (!stream) break;
-			stream >> buffer[i];
-			readCompleted = false;
-			readCompleted = true;
-			while(!readCompleted) ok2read.WAIT;
-		}
-		return i;
-	}*/
-
 	void completeRead() {
-		EXCLUSION
+		//EXCLUSIONdev
 		cout << "readComplete" << endl;
 		readCompleted = true;
-		ok2read.SIGNAL;
+		//ok2read.SIGNAL;
 	}
 
-	int read(Item *buffer, size_t count) {
-		EXCLUSION
+	int read(Item buffer, size_t count) {
+		//EXCLUSIONdev
 		int i;
 		off_t save = stream->tellg();
 		stream->seekg(0, ios_base::end);
@@ -320,13 +316,13 @@ class iDevice : public Device {
 
 			readCompleted = false;
 			readCompleted = true;
-			while(!readCompleted) ok2read.WAIT;
+			//while(!readCompleted) ok2read.WAIT;
 		}
 		return (bytesRead = i);
 	}
 
 	int seek(off_t newOffset, int whence) {
-		EXCLUSION
+		//EXCLUSIONdev
 
 		//get end position to save in our offset variable
 		off_t save = stream->tellg();
@@ -344,17 +340,14 @@ class iDevice : public Device {
 		//set position to current position + passed in position
 		else if(whence == SEEK_CUR)
 		{
-
 			//save position in our offset variable
 			offsetIn = offsetIn + newOffset;
 		}
-
 		else if(whence == SEEK_END)
 		{
 			//save position in our offset variable
 			offsetIn = (end-1) + newOffset;
-		}
-			
+		}	
 		
 		if(offsetIn > (end-1))
 		{
@@ -372,9 +365,24 @@ class iDevice : public Device {
 		return offsetIn;
 	}
 	int rewind() {
+		//cout << "iRewind!\n";
 		seek(0,SEEK_SET);
 		return 0;
 	}
+
+	friend iDevice<Item> &operator>>( iDevice<Item> &lhs, Item rhs )
+	{
+		lhs.rewind();
+		lhs.read(rhs,lhs.bufSize);
+		return lhs;
+	}
+
+	friend iDevice<Item> &operator>>( iDevice<Item> &lhs, int rhs )
+	{
+		lhs.bufSize = rhs;
+		return lhs;
+	}
+
 };
 
 //--------------------------------------------------
@@ -382,9 +390,10 @@ class iDevice : public Device {
 template< typename Item >
 class oDevice : public Device {
 
-  	ostream *stream;
+	ostream *stream;
 	stringstream sstream;
-    int offsetOut = 0;
+	fstream* fstreamy;
+	int offsetOut = 0;
 
 	//helper function doPadding only works for write, not read
 	void doPadding(off_t start, off_t end)
@@ -414,22 +423,31 @@ public:
 		stream->seekp(offsetOut,ios_base::beg);
 	}
 
-	CONDITION ok2write;
+	oDevice( fstream* s )
+		: fstreamy(s), 
+		Device("oDevice")
+	{
+		offsetOut = 0;
+		stream = fstreamy;
+		stream->seekp(offsetOut,ios_base::beg);
+	}
+
+	//CONDITION ok2write;
 	bool writeCompleted;
 
-	int output( Item* buffer, int n ) {
+	int output( Item buffer, int n ) {
   		return -1;
 	}
 
 	void completeWrite() {
-		EXCLUSION
+		//EXCLUSIONdev
 		cout <<"writeComplete" << endl;
 		writeCompleted = true;
-		ok2write.SIGNAL;
+		//ok2write.SIGNAL;
 	}
 
-	int write(Item *buffer, size_t count) {
-		EXCLUSION
+	int write(Item buffer, size_t count) {
+		//EXCLUSIONdev
 		off_t save = stream->tellp();
 		stream->seekp(0, ios_base::end);
 		off_t end = stream->tellp();
@@ -459,13 +477,13 @@ public:
 
 			writeCompleted = false;
 			writeCompleted = true;
-			while(!writeCompleted) ok2write.WAIT;
+			//while(!writeCompleted) ok2write.WAIT;
 		}
 		return (bytesWritten = i);
 	}
 
 	int seek(off_t newOffset, int whence) {
-		EXCLUSION
+		//EXCLUSIONdev
 
 		//get end position to save in our offset variable
 		off_t save = stream->tellp();
@@ -512,6 +530,7 @@ public:
 	}
 
 	int rewind() {
+		//cout << "oRewind!\n";
 		seek(0,SEEK_SET);
 		return 0;
 	}
@@ -523,7 +542,9 @@ class ioDevice : public iDevice<Item>, public oDevice<Item> {
 
   iostream *stream;
   stringstream sstream;
+  fstream* fstreamy;
   int offset = 0;
+  int bufSize = 1024;
 
 public:
 
@@ -540,6 +561,14 @@ public:
 	{
 		offset = 0;
 		stream = &sstream;
+	}
+
+	ioDevice( fstream* s )  
+		:fstreamy(s), 
+		 iDevice<Item>(s), oDevice<Item>(s)
+	{
+		offset = 0;
+		stream = fstreamy;
 	}
 
 
@@ -561,7 +590,7 @@ public:
 	}
 
 	int rewind() {
-
+		//cout << "Inside ioDevice rewind()\n";
 		if (iDevice<Item>::readable==true&&iDevice<Item>::writeable==false)
 		{
 			return iDevice<Item>::rewind();
@@ -586,8 +615,6 @@ public:
 		if ((flags & 0x01) | (flags & 0x02)) {
 			dn = oDevice<Item>::open(pathname,flags);
 		}
-		//cout << "ir: " << iDevice<Item>::readable << endl;
-		//cout << "iw: " << iDevice<Item>::writeable << endl;
 		return dn;
 	}
 
@@ -596,11 +623,11 @@ public:
 		return oDevice<Item>::close();
 	}
 
-	int read(Item *buffer, size_t count) {
+	int read(Item buffer, size_t count) {
 		return iDevice<Item>::read(buffer,count);
 	}
 
-	int write(Item *buffer, size_t count) {
+	int write(Item buffer, size_t count) {
 		return oDevice<Item>::write(buffer,count);
 	}
 
@@ -637,6 +664,40 @@ public:
 		oDevice<Item>::finalize();
 	}
 
+	friend ioDevice<Item> &operator<<( ioDevice<Item> &lhs, Item rhs )
+	{
+		lhs.rewind();
+		lhs.write(rhs,lhs.bufSize);
+		return lhs;
+	}
+
+	friend ioDevice<Item> &operator>>( ioDevice<Item> &lhs, Item rhs )
+	{
+		lhs.rewind();
+		lhs.read(rhs,lhs.bufSize);
+		return lhs;
+	}
+
+	friend ioDevice<Item> &operator>>( ioDevice<Item> &lhs, int rhs )
+	{
+		lhs.bufSize = rhs;
+		return lhs;
+	}
+
+	friend ioDevice<Item> &operator<<( ioDevice<Item> &lhs, int rhs )
+	{
+		lhs.bufSize = rhs;
+		return lhs;
+	}
+
+	char operator[](int rhs)
+	{
+		Item tmpBuff;
+		iDevice<Item>::rewind();
+		iDevice<Item>::seek(rhs,SEEK_CUR);
+		iDevice<Item>::read(tmpBuff,1);
+		return tmpBuff[0];
+	}
 };
 
 
